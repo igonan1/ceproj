@@ -20,6 +20,8 @@ struct bitboard{
     uint64_t king;
 };
 typedef struct bitboard board;
+board white;
+board black;
 uint8_t popcnt(uint64_t n){
     int a=n;
     int depth=0;
@@ -29,7 +31,23 @@ uint8_t popcnt(uint64_t n){
     }
     return depth;
 }
-uint8_t legal_move_generator(){
+uint8_t location(uint64_t piece,uint8_t n){//location of nth bit
+    int count=0;
+    uint8_t table[64]={0};
+    if((n>popcnt(piece))|(popcnt(piece)==0)){
+        return 0;//invalid
+    }
+    for(int i=0;i<64;i++){
+        if((piece>>i)&1){
+            table[count]=i;
+            count++;
+        }
+    }
+    return table[n];
+}
+void legal_move_generator(uint64_t *table){
+    table=(uint64_t*)malloc(1000*sizeof(uint64_t));
+    int length=0;
 }
 int main{
     return 0;
