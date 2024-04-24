@@ -1,0 +1,36 @@
+//
+//
+//
+//
+//
+//16...
+//8,9,10,11,12,13,14,15,
+//0,1,2,3,4,5,6,7, (1rank)
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#define convert(x,y) x+8*y//x,y=0~7
+struct bitboard{
+    uint64_t pawn;
+    uint64_t knight;
+    uint64_t bishop;
+    uint64_t rook;
+    uint64_t queen;
+    uint64_t king;
+};
+typedef struct bitboard board;
+uint8_t popcnt(uint64_t n){
+    int a=n;
+    int depth=0;
+    for(int i=0;a!=0;i++){
+        a=a&(a-1);
+        depth++;
+    }
+    return depth;
+}
+uint8_t legal_move_generator(){
+}
+int main{
+    return 0;
+}
