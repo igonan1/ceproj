@@ -20,8 +20,8 @@ struct bitboard{
     uint64_t king;
 };
 typedef struct bitboard board;
-board white;
-board black;
+board white={(uint64_t)0b11111111<<8,(uint64_t)0b01000010,(uint64_t)0b00100100,(uint64_t)0b10000001,(uint64_t)0b00010000,(uint64_t)0b00001000};
+board black={(uint64_t)0b11111111<<48,(uint64_t)0b01000010<<56,(uint64_t)0b00100100<<56,(uint64_t)0b10000001<<56,(uint64_t)0b00010000<<56,(uint64_t)0b00001000<<56};
 uint8_t popcnt(uint64_t n){
     int a=n;
     int depth=0;
@@ -49,6 +49,6 @@ void legal_move_generator(uint64_t *table){
     table=(uint64_t*)malloc(1000*sizeof(uint64_t));
     int length=0;
 }
-int main{
+int main(){
     return 0;
 }
