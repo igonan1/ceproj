@@ -65,6 +65,7 @@ void legal_move_generator(board friendly,board enemy,int *table){//friendly!=whi
     int x;
     int y;
     int knight_move[8][2]={{1,2},{1,-2},{-1,2},{-1,-2},{2,1},{2,-1},{-2,1},{-2,-1}};//dx,dy
+    int king_move[8][2]={{1,1},{1,-1},{-1,1},{-1,-1},{1,0},{0,-1},{-1,0},{0,1}};
     int bishop_move[8][4]={{1,1},{1,-1},{-1,1},{-1,-1}};
     int rook_move[8][4]={{1,0},{-1,0},{0,1},{0,-1}};
     for(int i=0;i<popcnt(friendly.pawn);i++){//pawn
@@ -128,12 +129,12 @@ void legal_move_generator(board friendly,board enemy,int *table){//friendly!=whi
         for(int j=0;j<4;j++){
             for(int k=1;k<8;k++){
             if((0<=x+k*bishop_move[j][0]<8)&(0<=y+k*bishop_move[j][1]<8)){
-                if(check_square(friendly,enemy,pos+convert(x+k*bishop_move[j][0],x+k*bishop_move[j][0]),0)){
-                    table[length]=pos;
-                    table[length+1]=convert(x+k*bishop_move[j][0],x+k*bishop_move[j][0]);
-                    length+=2;
+                    if(check_square(friendly,enemy,pos+convert(x+k*bishop_move[j][0],x+k*bishop_move[j][0]),0)){
+                        table[length]=pos;
+                        table[length+1]=convert(x+k*bishop_move[j][0],x+k*bishop_move[j][0]);
+                        length+=2;
+                    }
                 }
-            }
             }
         }
     }
@@ -144,12 +145,52 @@ void legal_move_generator(board friendly,board enemy,int *table){//friendly!=whi
         for(int j=0;j<4;j++){
             for(int k=1;k<8;k++){
             if((0<=x+k*rook_move[j][0]<8)&(0<=y+k*rook_move[j][1]<8)){
-                if(check_square(friendly,enemy,pos+convert(x+k*rook_move[j][0],x+k*rook_move[j][0]),0)){
-                    table[length]=pos;
-                    table[length+1]=convert(x+k*rook_move[j][0],x+k*rook_move[j][0]);
-                    length+=2;
+                    if(check_square(friendly,enemy,pos+convert(x+k*rook_move[j][0],x+k*rook_move[j][0]),0)){
+                        table[length]=pos;
+                        table[length+1]=convert(x+k*rook_move[j][0],x+k*rook_move[j][0]);
+                        length+=2;
+                    }
                 }
             }
+        }
+    }
+    for(int i=0;i<popcnt(friendly.queen);i++){
+        pos=location(friendly.queen,i);
+        x=pos%8;
+        y=pos/8;
+        for(int j=0;j<4;j++){
+            for(int k=1;k<8;k++){
+            if((0<=x+k*rook_move[j][0]<8)&(0<=y+k*rook_move[j][1]<8)){
+                    if(check_square(friendly,enemy,pos+convert(x+k*rook_move[j][0],x+k*rook_move[j][0]),0)){
+                        table[length]=pos;
+                        table[length+1]=convert(x+k*rook_move[j][0],x+k*rook_move[j][0]);
+                        length+=2;
+                    }
+                }
+            }
+        }
+        for(int j=0;j<4;j++){
+            for(int k=1;k<8;k++){
+            if((0<=x+k*bishop_move[j][0]<8)&(0<=y+k*bishop_move[j][1]<8)){
+                    if(check_square(friendly,enemy,pos+convert(x+k*bishop_move[j][0],x+k*bishop_move[j][0]),0)){
+                        table[length]=pos;
+                        table[length+1]=convert(x+k*bishop_move[j][0],x+k*bishop_move[j][0]);
+                        length+=2;
+                    }
+                }
+            }
+        }
+    }
+    pos=location(friendly.king,0);
+    x=pos%8;
+    y=pos/8;
+    for(int j=0;j<9;j++){
+        if((0<=x+king_move[j][0]<8)&(0<=y+king_move[j][1]<8)){
+            if(check_square(friendly,enemy,pos+convert(x+king_move[j][0],x+king_move[j][0]),0)){
+                
+                table[length]=pos;
+                table[length+1]=convert(x+king_move[j][0],x+king_move[j][0]);
+                length+=2;
             }
         }
     }
