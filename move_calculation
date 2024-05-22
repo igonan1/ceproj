@@ -64,6 +64,9 @@ void legal_move_generator(board friendly,board enemy,int *table){//friendly!=whi
     int pos;
     int x;
     int y;
+    int knight_move[8][2]={{1,2},{1,-2},{-1,2},{-1,-2},{2,1},{2,-1},{-2,1},{-2,-1}};//dx,dy
+    int bishop_move[8][4]={{1,1},{1,-1},{-1,1},{-1,-1}};
+    int rook_move[8][4]={{1,0},{-1,0},{0,1},{0,-1}};
     for(int i=0;i<popcnt(friendly.pawn);i++){//pawn
         pos=location(friendly.pawn,i);
         x=pos%8;
@@ -80,20 +83,75 @@ void legal_move_generator(board friendly,board enemy,int *table){//friendly!=whi
                 table[length]=pos;
                 table[length+1]=pos+8;
                 length+=2;
-            }
-            if(y==1){//move 2sq forward when y==1
-                if(!check_square(friendly,enemy,pos+16,2)){
-                    table[length]=pos;
-                    table[length+1]=pos+16;
-                    length+=2;
+                if(y==1){//move 2sq forward when y==1
+                    if(!check_square(friendly,enemy,pos+16,2)){
+                        table[length]=pos;
+                        table[length+1]=pos+16;
+                        length+=2;
+                    }
+                }
+                if(x!=0){//left capture
+                    if(check_square(friendly,enemy,pos+7,1)){
+                        table[length]=pos;
+                        table[length+1]=pos+16;
+                        length+=2;
+                    }
+                }
+                if(x!=7){//right capture
+                    if(check_square(friendly,enemy,pos+9,1)){
+                        table[length]=pos;
+                        table[length+1]=pos+16;
+                        length+=2;
+                    }
                 }
             }
         }
     }
     for(int i=0;i<popcnt(friendly.knight);i++){
-        pos=location(friendly.pawn,i);
+        pos=location(friendly.knight,i);
         x=pos%8;
         y=pos/8;
+        for(int j=0;j<8;j++){
+            if((0<=x+knight_move[j][0]<8)&(0<=y+knight_move[j][1]<8)){
+                if(check_square(friendly,enemy,pos+convert(x+knight_move[j][0],x+knight_move[j][0]),0)){
+                    table[length]=pos;
+                    table[length+1]=convert(x+knight_move[j][0],x+knight_move[j][0]);
+                    length+=2;
+                }
+            }
+        }
+    }
+    for(int i=0;i<popcnt(friendly.bishop);i++){
+        pos=location(friendly.bishop,i);
+        x=pos%8;
+        y=pos/8;
+        for(int j=0;j<4;j++){
+            for(int k=1;k<8;k++){
+            if((0<=x+k*bishop_move[j][0]<8)&(0<=y+k*bishop_move[j][1]<8)){
+                if(check_square(friendly,enemy,pos+convert(x+k*bishop_move[j][0],x+k*bishop_move[j][0]),0)){
+                    table[length]=pos;
+                    table[length+1]=convert(x+k*bishop_move[j][0],x+k*bishop_move[j][0]);
+                    length+=2;
+                }
+            }
+            }
+        }
+    }
+    for(int i=0;i<popcnt(friendly.rook);i++){
+        pos=location(friendly.rook,i);
+        x=pos%8;
+        y=pos/8;
+        for(int j=0;j<4;j++){
+            for(int k=1;k<8;k++){
+            if((0<=x+k*rook_move[j][0]<8)&(0<=y+k*rook_move[j][1]<8)){
+                if(check_square(friendly,enemy,pos+convert(x+k*rook_move[j][0],x+k*rook_move[j][0]),0)){
+                    table[length]=pos;
+                    table[length+1]=convert(x+k*rook_move[j][0],x+k*rook_move[j][0]);
+                    length+=2;
+                }
+            }
+            }
+        }
     }
 }
 int main(){
