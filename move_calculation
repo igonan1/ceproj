@@ -22,11 +22,11 @@ struct bitboard {
     uint64_t king;
 };
 typedef struct bitboard board;
-board white = { (uint64_t)0b11111111 << 8,(uint64_t)0b01000010,(uint64_t)0b00100100,(uint64_t)0b10000001,(uint64_t)0b00010000,(uint64_t)0b00001000 };
-board black = { (uint64_t)0b11111111 << 48,(uint64_t)0b01000010 << 56,(uint64_t)0b00100100 << 56,(uint64_t)0b10000001 << 56,(uint64_t)0b00010000 << 56,(uint64_t)0b00001000 << 56 };
-int buffer[10000];
-uint8_t popcnt(uint64_t n) {
-    int a = n;
+board white = { (uint64_t)(0xff) << 8,(uint64_t)(0b01000010),(uint64_t)(0b00100100),(uint64_t)(0b10000001),(uint64_t)(0b00010000),(uint64_t)0b00001000 };
+board black = { (uint64_t)0xff << 48,(uint64_t)0b01000010 << 56,(uint64_t)0b00100100 << 56,(uint64_t)0b10000001 << 56,(uint64_t)0b00010000 << 56,(uint64_t)0b00001000 << 56 };
+int buffer[1000];
+int popcnt(uint64_t n) {
+    uint64_t a = n;
     int depth = 0;
     for (int i = 0; a != 0; i++) {
         a = a & (a - 1);
@@ -211,13 +211,20 @@ void legal_move_generator(board friendly, board enemy) {//friendly!=white
     }
     for (int i = 0; i < length; i++) {
         buffer[i] = table[i];
-        printf("%d,", buffer[i]);
     }
     free(table);
 }
+int eval(board friendly,board enemy){
+    int sum;
+    sum=(popcnt(friendly.pawn)+3*popcnt(friendly.knight)+3*popcnt(friendly.bishop)+5*popcnt(friendly.rook)+9*popcnt(friendly.queen))-(popcnt(enemy.pawn)+3*popcnt(enemy.knight)+3*popcnt(enemy.bishop)+5*popcnt(enemy.rook)+9*popcnt(enemy.queen));
+    return sum;
+}
+void search(board friendly, board enemy){
+    legal_move_generator(friendly,enemy);
+    int depth=0;
+    int moves
+    
+}
 int main() {
-    legal_move_generator(white, black);
-    for (int i = 0; i < sizeof(buffer) / sizeof(int); i++) {
-    }
     return 0;
 }
