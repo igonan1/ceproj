@@ -22,9 +22,9 @@ struct bitboard {
     uint64_t king;
 };
 typedef struct bitboard board;
-board white = { (uint64_t)(0xff) << 8,(uint64_t)(0b01000010),(uint64_t)(0b00100100),(uint64_t)(0b10000001),(uint64_t)(0b00010000),(uint64_t)0b00001000 };
+board white = { (uint64_t)(0xFF00),(uint64_t)(0b01000010),(uint64_t)(0b00100100),(uint64_t)(0b10000001),(uint64_t)(0b00010000),(uint64_t)0b00001000 };
 board black = { (uint64_t)0xff << 48,(uint64_t)0b01000010 << 56,(uint64_t)0b00100100 << 56,(uint64_t)0b10000001 << 56,(uint64_t)0b00010000 << 56,(uint64_t)0b00001000 << 56 };
-int buffer[1000];
+int buffer[1000];//store moves
 int popcnt(uint64_t n) {
     uint64_t a = n;
     int depth = 0;
@@ -60,6 +60,7 @@ bool check_square(board friendly, board enemy, uint8_t pos, int color) {//0=frie
             if (((enemy.pawn >> pos) & 1) | ((enemy.knight >> pos) & 1) | ((enemy.bishop >> pos) & 1) | ((enemy.rook >> pos) & 1) | ((enemy.queen >> pos) & 1) | ((enemy.king >> pos) & 1)) { return 1; }
         }
     }
+    return 0;
 }
 void legal_move_generator(board friendly, board enemy) {//friendly!=white
     int* table;
@@ -70,8 +71,8 @@ void legal_move_generator(board friendly, board enemy) {//friendly!=white
     int y;
     int knight_move[8][2] = { {1,2},{1,-2},{-1,2},{-1,-2},{2,1},{2,-1},{-2,1},{-2,-1} };//dx,dy
     int king_move[8][2] = { {1,1},{1,-1},{-1,1},{-1,-1},{1,0},{0,-1},{-1,0},{0,1} };
-    int bishop_move[8][4] = { {1,1},{1,-1},{-1,1},{-1,-1} };
-    int rook_move[8][4] = { {1,0},{-1,0},{0,1},{0,-1} };
+    int bishop_move[4][2] = { {1,1},{1,-1},{-1,1},{-1,-1} };
+    int rook_move[4][2] = { {1,0},{-1,0},{0,1},{0,-1} };
     for (int i = 0; i < popcnt(friendly.pawn); i++) {//pawn
         pos = location(friendly.pawn, i);
         x = pos % 8;
@@ -131,12 +132,15 @@ void legal_move_generator(board friendly, board enemy) {//friendly!=white
         x = pos % 8;
         y = pos / 8;
         for (int j = 0; j < 4; j++) {
-            for (int k = 0; k < 8; k++) {
-                if ((0 <= x + k * bishop_move[j][0]) & (x + k * bishop_move[j][0] < 8) & (0 <= y + k * bishop_move[j][1]) & (y + k * bishop_move[j][1] < 8)) {
+            for (int k = 1; k < 8; k++) {
+                if ((0 <= x + k * bishop_move[j][0]) && (x + k * bishop_move[j][0] < 8) && (0 <= y + k * bishop_move[j][1]) && (y + k * bishop_move[j][1] < 8)) {
                     if (!check_square(friendly, enemy, convert(x + k * bishop_move[j][0], y + k * bishop_move[j][1]), 0)) {
                         table[length] = pos;
                         table[length + 1] = convert(x + k * bishop_move[j][0], y + k * bishop_move[j][1]);
                         length += 2;
+                        if(check_square(friendly, enemy, convert(x + k * bishop_move[j][0], y + k * bishop_move[j][1]), 1)){
+                            break;
+                        }
                     }
                     else {
                         break;
@@ -150,12 +154,15 @@ void legal_move_generator(board friendly, board enemy) {//friendly!=white
         x = pos % 8;
         y = pos / 8;
         for (int j = 0; j < 4; j++) {
-            for (int k = 0; k < 8; k++) {
+            for (int k = 1; k < 8; k++) {
                 if ((0 <= x + k * rook_move[j][0]) & (x + k * rook_move[j][0] < 8) & (0 <= y + k * rook_move[j][1]) & (y + k * rook_move[j][1] < 8)) {
                     if (!check_square(friendly, enemy, convert(x + k * rook_move[j][0], y + k * rook_move[j][1]), 0)) {
                         table[length] = pos;
                         table[length + 1] = convert(x + k * rook_move[j][0], y + k * rook_move[j][1]);
                         length += 2;
+                        if(check_square(friendly, enemy, convert(x + k * rook_move[j][0], y + k * rook_move[j][1]), 1)){
+                            break;
+                        }
                     }
                     else {
                         break;
@@ -169,12 +176,15 @@ void legal_move_generator(board friendly, board enemy) {//friendly!=white
         x = pos % 8;
         y = pos / 8;
         for (int j = 0; j < 4; j++) {
-            for (int k = 0; k < 8; k++) {
+            for (int k = 1; k < 8; k++) {
                 if ((0 <= x + k * rook_move[j][0]) & (x + k * rook_move[j][0] < 8) & (0 <= y + k * rook_move[j][1]) & (y + k * rook_move[j][1] < 8)) {
                     if (!check_square(friendly, enemy, convert(x + k * rook_move[j][0], y + k * rook_move[j][1]), 0)) {
                         table[length] = pos;
                         table[length + 1] = convert(x + k * rook_move[j][0], y + k * rook_move[j][1]);
                         length += 2;
+                        if(check_square(friendly, enemy, convert(x + k * rook_move[j][0], y + k * rook_move[j][1]), 1)){
+                            break;
+                        }
                     }
                     else {
                         break;
@@ -183,12 +193,15 @@ void legal_move_generator(board friendly, board enemy) {//friendly!=white
             }
         }
         for (int j = 0; j < 4; j++) {
-            for (int k = 0; k < 8; k++) {
+            for (int k = 1; k < 8; k++) {
                 if ((0 <= x + k * bishop_move[j][0]) & (x + k * bishop_move[j][0] < 8) & (0 <= y + k * bishop_move[j][1]) & (y + k * bishop_move[j][1] < 8)) {
                     if (!check_square(friendly, enemy, convert(x + k * bishop_move[j][0], y + k * bishop_move[j][1]), 0)) {
                         table[length] = pos;
                         table[length + 1] = convert(x + k * bishop_move[j][0], y + k * bishop_move[j][1]);
                         length += 2;
+                        if(check_square(friendly, enemy, convert(x + k * bishop_move[j][0], y + k * bishop_move[j][1]), 1)){
+                            break;
+                        }
                     }
                     else {
                         break;
@@ -200,7 +213,7 @@ void legal_move_generator(board friendly, board enemy) {//friendly!=white
     pos = location(friendly.king, 0);
     x = pos % 8;
     y = pos / 8;
-    for (int j = 0; j < 9; j++) {
+    for (int j = 0; j < 8; j++) {
         if ((0 <= x + king_move[j][0]) & (x + king_move[j][0] < 8) & (0 <= y + king_move[j][1]) & (y + king_move[j][1] < 8)) {
             if (!check_square(friendly, enemy, convert(x + king_move[j][0], y + king_move[j][1]), 0)) {
                 table[length] = pos;
@@ -222,9 +235,12 @@ int eval(board friendly,board enemy){
 void search(board friendly, board enemy){
     legal_move_generator(friendly,enemy);
     int depth=0;
-    int moves
-    
 }
 int main() {
+    legal_move_generator(white,black);
+    for(int i=0;i<100;i++){
+        printf("%d,",buffer[i]);
+    }
     return 0;
+    
 }
