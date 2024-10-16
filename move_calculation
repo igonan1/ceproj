@@ -24,9 +24,8 @@ struct bitboard {
 typedef struct bitboard board;
 //board white = { (uint64_t)(0xff00),(uint64_t)(0b01000010),(uint64_t)(0b00100100),(uint64_t)(0b10000001),(uint64_t)(0b00001000),(uint64_t)0b00010000 };
 //board black = { (uint64_t)0xff << 48,(uint64_t)0b01000010 << 56,(uint64_t)0b00100100 << 56,(uint64_t)0b10000001 << 56,(uint64_t)0b00001000 << 56,(uint64_t)0b00010000 << 56 };
-typedef struct bitboard board;
-board white = { (uint64_t)(0x00),(uint64_t)0,(uint64_t)0,(uint64_t)0,(uint64_t)(0b00000001),(uint64_t)0b00010000 };
-board black = { (uint64_t)0b11100000<<48,(uint64_t)0,(uint64_t)0,(uint64_t)0x0,(uint64_t)0b00000000,(uint64_t)0b01000000 << 56 };
+board white = { (uint64_t)0x8000000,(uint64_t)0,(uint64_t)0x80000,(uint64_t)0x10000,(uint64_t)0,(uint64_t)0b00000100 };
+board black = { (uint64_t)0x800040000,(uint64_t)0,(uint64_t)1<<8,(uint64_t)0,(uint64_t)0,(uint64_t)0b00000001 };
 static int popcnt(uint64_t n) {
     uint64_t a = n;
     int depth = 0;
@@ -437,6 +436,8 @@ static void printboard(bool color, board white, board black) {//0==white
     }
 }
 static int search(int color, int depth, board white, board black) {
+    int best_move_select;
+    int best_move_destination;
     int* move_to_eval = (int*)malloc(sizeof(int) * 2000);
     int minimax;
     bool is_checkmate_stalemate = 1;
@@ -454,7 +455,7 @@ static int search(int color, int depth, board white, board black) {
         if (move_to_eval[i] != -2) {
             is_checkmate_stalemate = 0;
             move(chessboard, white, black, move_to_eval[i], move_to_eval[i + 1]);
-            if (depth == 5) {
+            if (depth == 3) {
                 val=eval(white, black);
             }
             else {
@@ -463,11 +464,15 @@ static int search(int color, int depth, board white, board black) {
             if (!color) {
                 if (minimax <= val) {
                     minimax = val;
+                    best_move_select=move_to_eval[i];
+                    best_move_destination=move_to_eval[i+1];
                 }
             }
             else {
                 if (minimax >= val) {
                     minimax = val;
+                    best_move_select=move_to_eval[i];
+                    best_move_destination=move_to_eval[i+1];
                 }
             }
         }
@@ -494,10 +499,43 @@ static int search(int color, int depth, board white, board black) {
     }
     free(move_to_eval);
     free(chessboard);
+    if(depth==0){
+      return (best_move_destination<<6)|(best_move_select);
+    }
     return minimax;
 }
+bool playercolor;
+int selected_x;
+int selected_y;
+int selected;
+int destination_x;
+int destination_y;
+int destination;
+int cpu;
+board boardbuffer[2];
 int main() {
-    printboard(0, white, black);
-    printf("%d", search(0, 0, white, black));
-    return 0;
+    printf("white=0,black=1 select color:\n");
+    scanf("%d",&playercolor);
+    while(1){
+    if(playercolor==0){
+      printboard(playercolor, white, black);
+      printf("select a piece:x y\n");
+      scanf("%d %d",&selected_x,&selected_y);
+      selected=convert(selected_x,selected_y);
+      printf("destination:x y\n");
+      scanf("%d %d",&destination_x,&destination_y);
+      destination=convert(destination_x,destination_y);
+      move(&boardbuffer,white,black,selected,destination);
+      white=boardbuffer[0];
+      black=boardbuffer[1];
+      printboard(playercolor, white, black);
+      printf("cpu is thinking..\n");
+      cpu=search(!playercolor, 0, white, black);
+      selected=cpu&0x3f;
+      destination=cpu>>6;
+      move(&boardbuffer,white,black,selected,destination);
+      white=boardbuffer[0];
+      black=boardbuffer[1];
+    }
+    }
 }
