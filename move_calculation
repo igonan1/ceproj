@@ -123,7 +123,7 @@ static void legal_move_generator_withoutcheck(bool color, board white, board bla
         if (x != 0) {
             if (check_square(white, black, pos + 7 - 16 * color, enemy)) {
                 table[length] = pos;
-                table[length + 1] = pos + 7 - 16 * color, enemy;
+                table[length + 1] = pos + 7 - 16 * color;
                 length += 2;
             }
             if (y == 6 - 5 * color) {
@@ -455,7 +455,7 @@ static int search(int color, int depth, board white, board black) {
         if (move_to_eval[i] != -2) {
             is_checkmate_stalemate = 0;
             move(chessboard, white, black, move_to_eval[i], move_to_eval[i + 1]);
-            if (depth == 3) {
+            if (depth == 4) {
                 val=eval(white, black);
             }
             else {
